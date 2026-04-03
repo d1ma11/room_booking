@@ -90,13 +90,14 @@ func (s *BookingE2ESuite) SetupSuite() {
 	deps := service.ServicesDependencies{
 		Repos:             repos,
 		ConferenceService: service.NewConferenceService(),
+		Config:            s.cfg,
 	}
 	services := service.NewServices(deps)
 
 	s.router = gin.Default()
 	s.router.Use(gin.Recovery())
 
-	authCtrl := controller.NewAuthController(s.cfg)
+	authCtrl := controller.NewUserController(services.UserService)
 	s.router.POST("/dummyLogin", authCtrl.DummyLogin)
 
 	authorized := s.router.Group("/")

@@ -26,6 +26,8 @@ func handleServiceError(ctx *gin.Context, err error) {
 			newErrorResponse(ctx, http.StatusConflict, appErr)
 		case service.ErrorType.InvalidRequest:
 			newErrorResponse(ctx, http.StatusBadRequest, appErr)
+		case service.ErrorType.InvalidCredentials:
+			newErrorResponse(ctx, http.StatusUnauthorized, appErr)
 		case service.ErrorType.Forbidden:
 			newErrorResponse(ctx, http.StatusForbidden, appErr)
 		default:

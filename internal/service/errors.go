@@ -5,29 +5,33 @@ import (
 )
 
 type ErrorTypes struct {
-	InvalidRequest    string
-	Unauthorized      string
-	NotFound          string
-	RoomNotFound      string
-	SlotNotFound      string
-	SlotAlreadyBooked string
-	BookingNotFound   string
-	Forbidden         string
-	ScheduleExists    string
-	InternalError     string
+	InvalidRequest     string
+	Unauthorized       string
+	NotFound           string
+	RoomNotFound       string
+	SlotNotFound       string
+	SlotAlreadyBooked  string
+	BookingNotFound    string
+	Forbidden          string
+	ScheduleExists     string
+	InternalError      string
+	UserExists         string
+	InvalidCredentials string
 }
 
 var ErrorType = ErrorTypes{
-	InvalidRequest:    "INVALID_REQUEST",
-	Unauthorized:      "UNAUTHORIZED",
-	NotFound:          "NOT_FOUND",
-	RoomNotFound:      "ROOM_NOT_FOUND",
-	SlotNotFound:      "SLOT_NOT_FOUND",
-	SlotAlreadyBooked: "SLOT_ALREADY_BOOKED",
-	BookingNotFound:   "BOOKING_NOT_FOUND",
-	Forbidden:         "FORBIDDEN",
-	ScheduleExists:    "SCHEDULE_EXISTS",
-	InternalError:     "INTERNAL_ERROR",
+	InvalidRequest:     "INVALID_REQUEST",
+	Unauthorized:       "UNAUTHORIZED",
+	NotFound:           "NOT_FOUND",
+	RoomNotFound:       "ROOM_NOT_FOUND",
+	SlotNotFound:       "SLOT_NOT_FOUND",
+	SlotAlreadyBooked:  "SLOT_ALREADY_BOOKED",
+	BookingNotFound:    "BOOKING_NOT_FOUND",
+	Forbidden:          "FORBIDDEN",
+	ScheduleExists:     "SCHEDULE_EXISTS",
+	InternalError:      "INTERNAL_ERROR",
+	UserExists:         "USER_EXISTS",
+	InvalidCredentials: "INVALID_CREDENTIALS",
 }
 
 type ErrorResponse struct {

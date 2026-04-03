@@ -43,6 +43,7 @@ func Run() {
 	deps := service.ServicesDependencies{
 		Repos:             repositories,
 		ConferenceService: service.NewConferenceService(),
+		Config:            cfg,
 	}
 	services := service.NewServices(deps)
 
@@ -55,12 +56,16 @@ func Run() {
 		c.Status(http.StatusOK)
 	})
 
-	authCtrl := controller.NewAuthController(cfg)
-	router.POST("/dummyLogin", authCtrl.DummyLogin)
+	// NO AUTHORIZATION REQUIRED
+	userCtrl := controller.NewUserController(services.UserService)
+	router.POST("/dummyLogin", userCtrl.DummyLogin)
+	router.POST("/register", userCtrl.Register)
+	router.POST("/login", userCtrl.Login)
 
 	authorized := router.Group("/")
 	authorized.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
 
+	// AUTHORIZED REQUIRED
 	roomCtrl := controller.NewRoomController(services.RoomService)
 	authorized.GET("/rooms/list", roomCtrl.List)
 	authorized.POST("/rooms/create", middleware.RequireRole("admin"), roomCtrl.Create)

@@ -36,11 +36,17 @@ type BookingRepository interface {
 	GetBookedSlotIDsByRoomIDAndDate(roomID string, date time.Time, bookedSlotIDs *[]string) error
 }
 
+type UserRepository interface {
+	Create(user *entity.User) error
+	GetByEmail(user *entity.User, email string) error
+}
+
 type Repositories struct {
 	RoomRepository     RoomRepository
 	ScheduleRepository ScheduleRepository
 	SlotRepository     SlotRepository
 	BookingRepository  BookingRepository
+	UserRepository     UserRepository
 }
 
 func NewRepositories(db *gorm.DB) *Repositories {
@@ -49,5 +55,6 @@ func NewRepositories(db *gorm.DB) *Repositories {
 		ScheduleRepository: NewScheduleRepository(db),
 		SlotRepository:     NewSlotRepository(db),
 		BookingRepository:  NewBookingRepository(db),
+		UserRepository:     NewUserRepository(db),
 	}
 }

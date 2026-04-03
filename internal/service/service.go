@@ -1,6 +1,7 @@
 package service
 
 import (
+	"test-backend-1-d1ma11/configs"
 	"test-backend-1-d1ma11/internal/entity"
 	"test-backend-1-d1ma11/internal/repository"
 	"time"
@@ -31,16 +32,24 @@ type ConferenceService interface {
 	CreateConferenceLink(bookingID string) (string, error)
 }
 
+type UserService interface {
+	DummyLogin(role string) (string, error)
+	Login(email, password string) (string, error)
+	Register(email, password, role string) (entity.User, error)
+}
+
 type Services struct {
 	RoomService     RoomService
 	ScheduleService ScheduleService
 	SlotService     SlotService
 	BookingService  BookingService
+	UserService     UserService
 }
 
 type ServicesDependencies struct {
 	Repos             *repository.Repositories
 	ConferenceService ConferenceService
+	Config            *configs.Config
 }
 
 func NewServices(deps ServicesDependencies) *Services {
@@ -49,5 +58,6 @@ func NewServices(deps ServicesDependencies) *Services {
 		ScheduleService: NewScheduleService(deps.Repos.RoomRepository, deps.Repos.ScheduleRepository),
 		SlotService:     NewSlotServiceImpl(deps.Repos.BookingRepository, deps.Repos.SlotRepository, deps.Repos.ScheduleRepository, deps.Repos.RoomRepository),
 		BookingService:  NewBookingService(deps.Repos.BookingRepository, deps.Repos.SlotRepository, deps.ConferenceService),
+		UserService:     NewUserService(deps.Config, deps.Repos.UserRepository),
 	}
 }

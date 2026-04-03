@@ -1,24 +1,21 @@
 package controller
 
 import (
+	"fmt"
+	log "log/slog"
 	"net/http"
-	"test-backend-1-d1ma11/configs"
-	"test-backend-1-d1ma11/internal/auth"
+	"test-backend-1-d1ma11/internal/entity"
+	"test-backend-1-d1ma11/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	FixedAdminUUID = "00000000-0000-0000-0000-000000000001"
-	FixedUserUUID  = "00000000-0000-0000-0000-000000000002"
-)
-
-type AuthController struct {
-	cfg *configs.Config
+type UserController struct {
+	userService service.UserService
 }
 
-func NewAuthController(cfg *configs.Config) *AuthController {
-	return &AuthController{cfg: cfg}
+func NewUserController(userService service.UserService) *UserController {
+	return &UserController{userService: userService}
 }
 
 type dummyLoginRequest struct {
@@ -29,7 +26,7 @@ type tokenResponse struct {
 	Token string `json:"token"`
 }
 
-func (c *AuthController) DummyLogin(ctx *gin.Context) {
+func (c *UserController) DummyLogin(ctx *gin.Context) {
 	var req dummyLoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": gin.H{
@@ -39,17 +36,68 @@ func (c *AuthController) DummyLogin(ctx *gin.Context) {
 		return
 	}
 
-	userId := FixedUserUUID
-	if req.Role == "admin" {
-		userId = FixedAdminUUID
-	}
-
-	token, err := auth.GenerateToken(userId, req.Role, c.cfg.JWT.Secret, c.cfg.JWT.TTL)
+	token, err := c.userService.DummyLogin(req.Role)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": gin.H{
 			"code":    "INTERNAL_ERROR",
 			"message": "failed to generate token",
 		}})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, tokenResponse{Token: token})
+}
+
+type registerRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
+}
+
+type registerResponse struct {
+	User entity.User `json:"user"`
+}
+
+func (c *UserController) Register(ctx *gin.Context) {
+	var req registerRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": gin.H{
+			"code":    "INVALID_REQUEST",
+			"message": "invalid request",
+		}})
+		return
+	}
+
+	// pass email and password to user_service
+	// getting token
+	user, err := c.userService.Register(req.Email, req.Password, req.Role)
+	if err != nil {
+		newInternalErrorResponse(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, registerResponse{User: user})
+}
+
+type loginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (c *UserController) Login(ctx *gin.Context) {
+	var req loginRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": gin.H{
+			"code":    "INVALID_REQUEST",
+			"message": "invalid request",
+		}})
+		return
+	}
+
+	token, err := c.userService.Login(req.Email, req.Password)
+	if err != nil {
+		log.Info(fmt.Sprintf("There is an error while canceling booking for slot. Error: %v", err))
+		handleServiceError(ctx, err)
 		return
 	}
 
