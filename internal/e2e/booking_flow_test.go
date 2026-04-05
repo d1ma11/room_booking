@@ -22,7 +22,6 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 
 	"test-backend-1-d1ma11/configs"
-	"test-backend-1-d1ma11/internal/auth"
 	"test-backend-1-d1ma11/internal/controller"
 	"test-backend-1-d1ma11/internal/middleware"
 	"test-backend-1-d1ma11/internal/repository"
@@ -101,7 +100,7 @@ func (s *BookingE2ESuite) SetupSuite() {
 	s.router.POST("/dummyLogin", authCtrl.DummyLogin)
 
 	authorized := s.router.Group("/")
-	authorized.Use(middleware.AuthMiddleware(s.cfg.JWT.Secret))
+	authorized.Use(middleware.AuthMiddleware(services.JwtService, s.cfg.JWT.Secret))
 
 	roomCtrl := controller.NewRoomController(services.RoomService)
 	authorized.GET("/rooms/list", roomCtrl.List)
@@ -121,9 +120,8 @@ func (s *BookingE2ESuite) SetupSuite() {
 
 	s.router.GET("/_info", func(c *gin.Context) { c.Status(http.StatusOK) })
 
-	// 8. Генерируем токены
-	s.adminToken = s.generateToken("00000000-0000-0000-0000-000000000001", "admin")
-	s.userToken = s.generateToken("00000000-0000-0000-0000-000000000002", "user")
+	s.adminToken = s.generateToken(services.JwtService, "00000000-0000-0000-0000-000000000001", "admin")
+	s.userToken = s.generateToken(services.JwtService, "00000000-0000-0000-0000-000000000002", "user")
 }
 
 func (s *BookingE2ESuite) TearDownSuite() {
@@ -133,8 +131,8 @@ func (s *BookingE2ESuite) TearDownSuite() {
 	}
 }
 
-func (s *BookingE2ESuite) generateToken(userID, role string) string {
-	token, err := auth.GenerateToken(userID, role, s.cfg.JWT.Secret, s.cfg.JWT.TTL)
+func (s *BookingE2ESuite) generateToken(jwtService service.JwtService, userID, role string) string {
+	token, err := jwtService.GenerateToken(userID, role, s.cfg.JWT.Secret, s.cfg.JWT.TTL)
 	s.Require().NoError(err)
 	return token
 }

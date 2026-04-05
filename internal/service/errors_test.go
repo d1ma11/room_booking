@@ -27,7 +27,7 @@ func TestErrorResponse_ErrorMethod(t *testing.T) {
 }
 
 func TestNewInternalError(t *testing.T) {
-	err := newInternalError("database timeout")
+	err := NewInternalError("database timeout")
 
 	assert.Equal(t, ErrorType.InternalError, err.Code)
 	assert.Equal(t, "database timeout", err.Message)

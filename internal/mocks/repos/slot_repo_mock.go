@@ -1,4 +1,4 @@
-package mocks
+package repos
 
 import (
 	"test-backend-1-d1ma11/internal/entity"

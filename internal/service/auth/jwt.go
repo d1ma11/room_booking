@@ -13,7 +13,14 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(userId, role, secret string, ttl time.Duration) (string, error) {
+type JwtServiceImpl struct {
+}
+
+func NewJwtService() *JwtServiceImpl {
+	return &JwtServiceImpl{}
+}
+
+func (s *JwtServiceImpl) GenerateToken(userId, role, secret string, ttl time.Duration) (string, error) {
 	claims := Claims{
 		UserID: userId,
 		Role:   role,
@@ -26,7 +33,7 @@ func GenerateToken(userId, role, secret string, ttl time.Duration) (string, erro
 	return token.SignedString([]byte(secret))
 }
 
-func ParseToken(tokenStr, secret string) (*Claims, error) {
+func (s *JwtServiceImpl) ParseToken(tokenStr, secret string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(
 		tokenStr,
 		&Claims{},

@@ -27,15 +27,15 @@ func NewSlotServiceImpl(
 	return &SlotServiceImpl{bookingRepo: bookingRepo, slotRepo: slotRepo, scheduleRepo: scheduleRepo, roomRepo: roomRepo}
 }
 
+// GenerateSlotsForDate TODO: для даты, которая находится в прошлом, возвращаем пустой массив
 func (s *SlotServiceImpl) GenerateSlotsForDate(roomId string, date time.Time) ([]entity.Slot, error) {
-	var room entity.Room
-	if err := s.roomRepo.GetById(&room, roomId); err != nil {
+	if err := s.roomRepo.GetById(&entity.Room{}, roomId); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Info(fmt.Sprintf("Room with room_id=%v was not found. Returning zero slots", roomId))
 			return []entity.Slot{}, NewError(ErrorType.RoomNotFound, "room not found")
 		}
 		log.Info(fmt.Sprintf("Internal error during getting room by room_id=%v. Error: %v", roomId, err))
-		return []entity.Slot{}, newInternalError("failed to check room")
+		return []entity.Slot{}, NewInternalError("failed to check room")
 	}
 
 	var existing []entity.Slot

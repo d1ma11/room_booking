@@ -56,6 +56,6 @@ func (e *InternalErrorResponse) Error() string {
 	return fmt.Sprintf("Code %s: %s", e.Code, e.Message)
 }
 
-func newInternalError(errorMessage string) *InternalErrorResponse {
+func NewInternalError(errorMessage string) *InternalErrorResponse {
 	return &InternalErrorResponse{Code: ErrorType.InternalError, Message: errorMessage}
 }

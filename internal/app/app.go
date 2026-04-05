@@ -63,7 +63,7 @@ func Run() {
 	router.POST("/login", userCtrl.Login)
 
 	authorized := router.Group("/")
-	authorized.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+	authorized.Use(middleware.AuthMiddleware(services.JwtService, cfg.JWT.Secret))
 
 	// AUTHORIZED REQUIRED
 	roomCtrl := controller.NewRoomController(services.RoomService)

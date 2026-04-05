@@ -4,6 +4,7 @@ import (
 	"test-backend-1-d1ma11/configs"
 	"test-backend-1-d1ma11/internal/entity"
 	"test-backend-1-d1ma11/internal/repository"
+	"test-backend-1-d1ma11/internal/service/auth"
 	"time"
 )
 
@@ -38,12 +39,18 @@ type UserService interface {
 	Register(email, password, role string) (entity.User, error)
 }
 
+type JwtService interface {
+	ParseToken(tokenStr, secret string) (*auth.Claims, error)
+	GenerateToken(userId, role, secret string, ttl time.Duration) (string, error)
+}
+
 type Services struct {
 	RoomService     RoomService
 	ScheduleService ScheduleService
 	SlotService     SlotService
 	BookingService  BookingService
 	UserService     UserService
+	JwtService      JwtService
 }
 
 type ServicesDependencies struct {
@@ -53,11 +60,13 @@ type ServicesDependencies struct {
 }
 
 func NewServices(deps ServicesDependencies) *Services {
+	jwtSvc := auth.NewJwtService()
 	return &Services{
 		RoomService:     NewRoomService(deps.Repos.RoomRepository),
 		ScheduleService: NewScheduleService(deps.Repos.RoomRepository, deps.Repos.ScheduleRepository),
 		SlotService:     NewSlotServiceImpl(deps.Repos.BookingRepository, deps.Repos.SlotRepository, deps.Repos.ScheduleRepository, deps.Repos.RoomRepository),
 		BookingService:  NewBookingService(deps.Repos.BookingRepository, deps.Repos.SlotRepository, deps.ConferenceService),
-		UserService:     NewUserService(deps.Config, deps.Repos.UserRepository),
+		UserService:     NewUserServiceImpl(deps.Config, deps.Repos.UserRepository, jwtSvc),
+		JwtService:      jwtSvc,
 	}
 }

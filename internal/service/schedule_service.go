@@ -23,7 +23,7 @@ func (s *ScheduleServiceImpl) Create(schedule *entity.Schedule, roomId string) e
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return NewError(ErrorType.RoomNotFound, "room not found")
 		}
-		return newInternalError("failed to check room")
+		return NewInternalError("failed to check room")
 	}
 
 	if err := s.scheduleRepo.GetByRoomId(&entity.Schedule{}, roomId); err == nil {
@@ -31,7 +31,7 @@ func (s *ScheduleServiceImpl) Create(schedule *entity.Schedule, roomId string) e
 	}
 
 	if err := s.scheduleRepo.Create(schedule); err != nil {
-		return newInternalError("failed to create schedule")
+		return NewInternalError("failed to create schedule")
 	}
 	return nil
 

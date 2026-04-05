@@ -3,12 +3,12 @@ package middleware
 import (
 	"net/http"
 	"strings"
-	"test-backend-1-d1ma11/internal/auth"
+	"test-backend-1-d1ma11/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware(secret string) gin.HandlerFunc {
+func AuthMiddleware(jwtService service.JwtService, secret string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {
@@ -29,7 +29,7 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 			return
 		}
 
-		claims, err := auth.ParseToken(parts[1], secret)
+		claims, err := jwtService.ParseToken(parts[1], secret)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": gin.H{
 				"code":    "UNAUTHORIZED",

@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"test-backend-1-d1ma11/configs"
-	"test-backend-1-d1ma11/internal/auth"
 	"test-backend-1-d1ma11/internal/entity"
 	"test-backend-1-d1ma11/internal/repository"
 
@@ -12,31 +11,32 @@ import (
 )
 
 const (
-	FixedAdminUUID = "00000000-0000-0000-0000-000000000001"
-	FixedUserUUID  = "00000000-0000-0000-0000-000000000002"
+	fixedAdminUUID = "00000000-0000-0000-0000-000000000001"
+	fixedUserUUID  = "00000000-0000-0000-0000-000000000002"
 	emptyString    = ""
 	userRole       = "user"
 	adminRole      = "admin"
 )
 
 type UserServiceImpl struct {
-	cfg      *configs.Config
-	userRepo repository.UserRepository
+	cfg        *configs.Config
+	userRepo   repository.UserRepository
+	jwtService JwtService
 }
 
-func NewUserServiceImpl(cfg *configs.Config, userRepo repository.UserRepository) *UserServiceImpl {
-	return &UserServiceImpl{cfg: cfg, userRepo: userRepo}
+func NewUserServiceImpl(cfg *configs.Config, userRepo repository.UserRepository, jwtService JwtService) *UserServiceImpl {
+	return &UserServiceImpl{cfg: cfg, userRepo: userRepo, jwtService: jwtService}
 }
 
 func (s *UserServiceImpl) DummyLogin(role string) (string, error) {
-	userId := FixedUserUUID
+	userId := fixedUserUUID
 	if role == adminRole {
-		userId = FixedAdminUUID
+		userId = fixedAdminUUID
 	}
 
-	token, err := auth.GenerateToken(userId, role, s.cfg.JWT.Secret, s.cfg.JWT.TTL)
+	token, err := s.jwtService.GenerateToken(userId, role, s.cfg.JWT.Secret, s.cfg.JWT.TTL)
 	if err != nil {
-		return emptyString, newInternalError("failed to generate token")
+		return emptyString, NewInternalError("failed to generate token")
 	}
 
 	return token, nil
@@ -79,9 +79,9 @@ func (s *UserServiceImpl) Login(email, password string) (string, error) {
 		return emptyString, NewError(ErrorType.InvalidCredentials, "invalid credentials")
 	}
 
-	token, err := auth.GenerateToken(existingUser.ID, existingUser.Role, s.cfg.JWT.Secret, s.cfg.JWT.TTL)
+	token, err := s.jwtService.GenerateToken(existingUser.ID, existingUser.Role, s.cfg.JWT.Secret, s.cfg.JWT.TTL)
 	if err != nil {
-		return emptyString, newInternalError("failed to generate token")
+		return emptyString, NewInternalError("failed to generate token")
 	}
 
 	return token, nil

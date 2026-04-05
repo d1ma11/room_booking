@@ -75,7 +75,7 @@ func (s *BookingServiceImpl) Create(booking *entity.Booking, createConferenceLin
 			return err
 		}
 		log.Info(fmt.Sprintf("Failed to create booking for slot with id=%v. Error: %v", booking.SlotID, err))
-		return newInternalError("failed to create booking")
+		return NewInternalError("failed to create booking")
 	}
 
 	return nil
@@ -83,7 +83,7 @@ func (s *BookingServiceImpl) Create(booking *entity.Booking, createConferenceLin
 
 func (s *BookingServiceImpl) ListByUserId(bookings *[]entity.Booking, userId string) error {
 	if err := s.bookingRepo.GetByUserID(bookings, userId); err != nil {
-		return newInternalError("failed to get user's bookings")
+		return NewInternalError("failed to get user's bookings")
 	}
 	return nil
 }
@@ -115,7 +115,7 @@ func (s *BookingServiceImpl) CancelBooking(booking *entity.Booking, bookingId, u
 
 	booking.Status = "cancelled"
 	if err := s.bookingRepo.Save(booking); err != nil {
-		return newInternalError("failed to cancel booking")
+		return NewInternalError("failed to cancel booking")
 	}
 
 	return nil

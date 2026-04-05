@@ -15,14 +15,14 @@ func NewRoomService(roomRepo repository.RoomRepository) *RoomServiceImpl {
 
 func (s *RoomServiceImpl) Create(room *entity.Room) error {
 	if err := s.roomRepo.Create(room); err != nil {
-		return newInternalError("failed to create room")
+		return NewInternalError("failed to create room")
 	}
 	return nil
 }
 
 func (s *RoomServiceImpl) List(rooms *[]entity.Room) error {
 	if err := s.roomRepo.GetAll(rooms); err != nil {
-		return newInternalError("failed to fetch rooms")
+		return NewInternalError("failed to fetch rooms")
 	}
 	return nil
 }
