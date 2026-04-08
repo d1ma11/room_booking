@@ -15,7 +15,7 @@ RUN CGO_ENABLED=0  \
     go build -o /bin/app ./cmd/app
 
 # Step 3: Final
-FROM scratch
+FROM alpine:3.21
 COPY --from=builder /app/configs /configs
 COPY --from=builder /app/migrations /migrations
 COPY --from=builder /bin/app /app

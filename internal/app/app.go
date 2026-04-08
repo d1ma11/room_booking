@@ -11,6 +11,7 @@ import (
 	"test-backend-1-d1ma11/configs"
 	"test-backend-1-d1ma11/initializers"
 	"test-backend-1-d1ma11/internal/controller"
+	"test-backend-1-d1ma11/internal/metrics"
 	"test-backend-1-d1ma11/internal/middleware"
 	"test-backend-1-d1ma11/internal/repository"
 	"test-backend-1-d1ma11/internal/service"
@@ -48,9 +49,11 @@ func Run() {
 	services := service.NewServices(deps)
 
 	router := gin.Default()
+	router.GET("/metrics", metrics.PrometheusHandler())
 
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(metrics.RequestMetricsMiddleware())
 
 	router.GET("/_info", func(c *gin.Context) {
 		c.Status(http.StatusOK)
